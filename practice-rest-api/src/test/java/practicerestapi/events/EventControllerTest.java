@@ -3,6 +3,7 @@ package practicerestapi.events;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
@@ -29,65 +30,77 @@ class EventControllerTest {
 
 	@Autowired
 	MockMvc mockMvc;
-	
+
 	@Autowired
 	ObjectMapper objectMapper;
 
-	
 	@Test
 	public void test() throws Exception {
-		
-		EventDto event = EventDto.builder().name("spring")
-						.description("REST API")
-						.beginEnrollmentDateTime(LocalDateTime.of(2020, 7 , 20 , 1 ,1 , 1))
-						.closeEnrollmentDateTime(LocalDateTime.of(2020, 7, 21 , 1, 1, 1))
-						.beginEventDateTime(LocalDateTime.of(2020, 7 , 22 , 1 ,1 ,1))
-						.endEventDateTime(LocalDateTime.of(2020, 7 , 23, 1, 1, 1))
-						.basePrice(100)
-						.maxPrice(200)
-						.limitOfEnrollment(100)
-						.location("강남")
-						.build();
-		
-		mockMvc.perform(
-						post("/api/events")						
-						.contentType(MediaType.APPLICATION_JSON)
-						.accept(MediaTypes.HAL_JSON)
-						.content(objectMapper.writeValueAsString(event))
-						)
-			.andDo(print())
-			.andExpect(status().isCreated())
-			.andExpect(MockMvcResultMatchers.jsonPath("id").exists())
-			.andExpect(MockMvcResultMatchers.jsonPath("id").value(Matchers.not(100)))
-			.andExpect(MockMvcResultMatchers.jsonPath("free").value(Matchers.not(true)));
+
+		EventDto event = EventDto.builder().name("spring").description("REST API")
+				.beginEnrollmentDateTime(LocalDateTime.of(2020, 7, 20, 1, 1, 1))
+				.closeEnrollmentDateTime(LocalDateTime.of(2020, 7, 21, 1, 1, 1))
+				.beginEventDateTime(LocalDateTime.of(2020, 7, 22, 1, 1, 1))
+				.endEventDateTime(LocalDateTime.of(2020, 7, 23, 1, 1, 1)).basePrice(100).maxPrice(200)
+				.limitOfEnrollment(100).location("강남").build();
+
+		mockMvc.perform(post("/api/events").contentType(MediaType.APPLICATION_JSON).accept(MediaTypes.HAL_JSON)
+				.content(objectMapper.writeValueAsString(event))).andDo(print()).andExpect(status().isCreated())
+				.andExpect(MockMvcResultMatchers.jsonPath("id").exists())
+				.andExpect(MockMvcResultMatchers.jsonPath("id").value(Matchers.not(100)))
+				.andExpect(MockMvcResultMatchers.jsonPath("free").value(Matchers.not(true)));
 	}
-	
+
 	@Test
 	public void test_badRequest() throws Exception {
+
+		Event event = Event.builder().name("spring").id(100).description("REST API")
+				.beginEnrollmentDateTime(LocalDateTime.of(2020, 7, 20, 1, 1, 1))
+				.closeEnrollmentDateTime(LocalDateTime.of(2020, 7, 21, 1, 1, 1))
+				.beginEventDateTime(LocalDateTime.of(2020, 7, 22, 1, 1, 1))
+				.endEventDateTime(LocalDateTime.of(2020, 7, 23, 1, 1, 1)).basePrice(100).maxPrice(200)
+				.limitOfEnrollment(100).location("강남").free(true).eventStatus(EventStatus.PUBLISHED).build();
+
+		mockMvc.perform(post("/api/events").contentType(MediaType.APPLICATION_JSON).accept(MediaTypes.HAL_JSON)
+				.content(objectMapper.writeValueAsString(event))).andDo(print()).andExpect(status().isBadRequest());
+
+	}
+
+	@Test
+	public void test_badRequest_Empty_input() throws Exception {
+
+		EventDto eventDto = EventDto.builder().build();
+
+		mockMvc.perform(post("/api/events").contentType(MediaType.APPLICATION_JSON).accept(MediaTypes.HAL_JSON)
+				.content(objectMapper.writeValueAsString(eventDto))).andDo(print()).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void test_badRequest_Wrong_input() throws Exception {
 		
-		Event event = Event.builder().name("spring")
-						.id(100)
-						.description("REST API")
-						.beginEnrollmentDateTime(LocalDateTime.of(2020, 7 , 20 , 1 ,1 , 1))
-						.closeEnrollmentDateTime(LocalDateTime.of(2020, 7, 21 , 1, 1, 1))
-						.beginEventDateTime(LocalDateTime.of(2020, 7 , 22 , 1 ,1 ,1))
-						.endEventDateTime(LocalDateTime.of(2020, 7 , 23, 1, 1, 1))
-						.basePrice(100)
-						.maxPrice(200)
-						.limitOfEnrollment(100)
-						.location("강남")
-						.free(true)
-						.eventStatus(EventStatus.PUBLISHED)
-						.build();
+		EventDto eventDto = EventDto.builder().name("spring")
+				.description("REST API")
+				.beginEnrollmentDateTime(LocalDateTime.of(2020, 7 , 20 , 1 ,1 , 1))
+				.closeEnrollmentDateTime(LocalDateTime.of(2020, 7, 21 , 1, 1, 1))
+				.beginEventDateTime(LocalDateTime.of(2020, 7 , 22 , 1 ,1 ,1))
+				.endEventDateTime(LocalDateTime.of(2020, 7 , 21, 1, 1, 1))
+				.basePrice(10000)
+				.maxPrice(200)
+				.limitOfEnrollment(100)
+				.location("강남")
+				.build();
 		
 		mockMvc.perform(
-						post("/api/events")						
-						.contentType(MediaType.APPLICATION_JSON)
-						.accept(MediaTypes.HAL_JSON)
-						.content(objectMapper.writeValueAsString(event))
-						)
+				post("/api/events")						
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaTypes.HAL_JSON)
+				.content(objectMapper.writeValueAsString(eventDto))
+				)
 			.andDo(print())
-			.andExpect(status().isBadRequest());
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$[0].objectName").exists())
+			.andExpect(jsonPath("$[0].defaultMessage").exists())
+			.andExpect(jsonPath("$[0].code").exists());
 		
 	}
 

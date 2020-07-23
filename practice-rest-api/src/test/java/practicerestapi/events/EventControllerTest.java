@@ -24,6 +24,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import practicerestapi.common.BaseControllerTest;
 import practicerestapi.common.RestDocsConfiguration;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
@@ -31,24 +33,8 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 
 
-@AutoConfigureMockMvc
-@AutoConfigureRestDocs
-@SpringBootTest
-@Import(RestDocsConfiguration.class)
-@ActiveProfiles("test")
-class EventControllerTest {
+class EventControllerTest extends BaseControllerTest{
 
-	@Autowired
-	MockMvc mockMvc;
-
-	@Autowired
-	ObjectMapper objectMapper;
-	
-	@Autowired
-	ModelMapper modelMapper;
-	
-	@Autowired
-	EventRepository eventRepository;
 
 	@Test
 	public void createEvent() throws Exception {

@@ -15,20 +15,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import practicerestapi.common.BaseControllerTest;
 import practicerestapi.common.RestDocsConfiguration;
 
-@AutoConfigureMockMvc
-@AutoConfigureRestDocs
-@SpringBootTest
-@Import(RestDocsConfiguration.class)
-@ActiveProfiles("test")
-public class IndexControllerTest {
-
-	@Autowired
-	MockMvc mockMvc;
-
-	@Autowired
-	ObjectMapper objectMapper;
+public class IndexControllerTest extends BaseControllerTest {
 	
 	@Test
 	public void index() throws Exception {

@@ -5,8 +5,10 @@ import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +16,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import practicerestapi.account.Account;
 
 @Entity
 @Getter @Setter @EqualsAndHashCode(of = "id")
@@ -35,6 +38,9 @@ public class Event {
     private int limitOfEnrollment;
     private boolean offline;
     private boolean free;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Account owner;
     
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;

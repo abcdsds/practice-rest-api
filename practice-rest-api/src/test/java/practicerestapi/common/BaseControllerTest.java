@@ -12,6 +12,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import practicerestapi.account.AccountRepository;
+import practicerestapi.account.AccountService;
+import practicerestapi.commons.AppProperties;
 import practicerestapi.events.EventRepository;
 
 @AutoConfigureMockMvc
@@ -33,4 +36,13 @@ public class BaseControllerTest {
 	
 	@Autowired
 	protected EventRepository eventRepository;
+	
+	@Autowired
+	protected AccountService accountService;
+	
+	@Autowired
+	protected AccountRepository accountRepository;
+	
+	@Autowired
+	protected AppProperties appProperties;
 }

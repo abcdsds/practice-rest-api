@@ -23,7 +23,7 @@ import practicerestapi.events.EventRepository;
 @Import(RestDocsConfiguration.class)
 @ActiveProfiles("test")
 @Disabled
-public class BaseControllerTest {
+public class BaseTest {
 
 	@Autowired
 	protected MockMvc mockMvc;

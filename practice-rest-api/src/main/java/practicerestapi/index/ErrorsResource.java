@@ -15,7 +15,6 @@ public class ErrorsResource extends RepresentationModel<ErrorsResource>{
 	private Errors errors;
 	
 	public ErrorsResource(Errors errors) {
-		System.out.println("666");
 		this.errors = errors;
 		add(linkTo(IndexController.class).withRel("index"));
 	}

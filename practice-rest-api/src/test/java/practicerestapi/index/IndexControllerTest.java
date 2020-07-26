@@ -15,10 +15,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import practicerestapi.common.BaseControllerTest;
+import practicerestapi.common.BaseTest;
 import practicerestapi.common.RestDocsConfiguration;
 
-public class IndexControllerTest extends BaseControllerTest {
+public class IndexControllerTest extends BaseTest {
 	
 	@Test
 	public void index() throws Exception {

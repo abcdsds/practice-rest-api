@@ -10,6 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -17,6 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import practicerestapi.account.Account;
+import practicerestapi.account.AccountSerializer;
 
 @Entity
 @Getter @Setter @EqualsAndHashCode(of = "id")
@@ -40,12 +43,16 @@ public class Event {
     private boolean free;
     
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonSerialize(using = AccountSerializer.class)
     private Account owner;
     
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
 
 
+    public void setManager(Account account) {
+    	this.owner = account;
+    }
     
     
     public void onlineCheck() {

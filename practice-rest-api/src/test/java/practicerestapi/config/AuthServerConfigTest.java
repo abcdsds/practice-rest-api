@@ -15,9 +15,9 @@ import org.junit.jupiter.api.Test;
 
 import practicerestapi.account.Account;
 import practicerestapi.account.AccountRole;
-import practicerestapi.common.BaseControllerTest;
+import practicerestapi.common.BaseTest;
 
-class AuthServerConfigTest extends BaseControllerTest {
+class AuthServerConfigTest extends BaseTest {
 
 	
 	

@@ -8,6 +8,7 @@ import java.util.Optional;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
+import org.elasticsearch.client.security.user.User;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -18,7 +19,11 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +38,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import practicerestapi.account.Account;
+import practicerestapi.account.AccountAdapter;
+import practicerestapi.account.CurrentUser;
 import practicerestapi.index.ErrorsResource;
 
 @Controller
@@ -45,7 +53,9 @@ public class EventController {
 	private final EventValidator eventValidator;
 	
 	@PostMapping
-	public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
+	public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors,
+											@CurrentUser Account account) {
+		
 		
 		//URI uri = linkTo(methodOn(EventController.class).createEvent(null)).slash("{id}").toUri();
 		if(errors.hasErrors()) {
@@ -60,6 +70,7 @@ public class EventController {
 		
 		
 		Event saveEvent = eventRepository.save(modelMapper.map(eventDto, Event.class));
+		saveEvent.setManager(account);
 		saveEvent.freeCheck();
 		saveEvent.onlineCheck();
 		WebMvcLinkBuilder slash = linkTo(EventController.class).slash(saveEvent.getId());
@@ -73,33 +84,49 @@ public class EventController {
 	}
 	
 	@GetMapping
-	public ResponseEntity queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assemble) {
+	public ResponseEntity queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assemble,
+			@CurrentUser Account account) {
+		
+		
 		Page<Event> findAll = eventRepository.findAll(pageable);
 		var model = assemble.toModel(findAll , e -> new EventResource(e));
 		model.add(Link.of("/docs/index.html#resources-events-list").withRel("profile"));
+		
+		if (account != null) {
+			model.add(linkTo(EventController.class).withRel("create-event"));
+		}
+		
 		return ResponseEntity.ok(model);
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity getEvent(@PathVariable Integer id) {
+	public ResponseEntity getEvent(@PathVariable Integer id, @CurrentUser Account currentUser) {
+		
+		
 		Optional<Event> optionalEvent = eventRepository.findById(id);
 		
 		if (!optionalEvent.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
 		
-		EventResource eventResource = new EventResource(optionalEvent.get());
+		Event event = optionalEvent.get();
+		
+		EventResource eventResource = new EventResource(event);
 		eventResource.add(Link.of("/docs/index.html#resources-events-get").withRel("profile"));
+
+		if (event.getOwner().equals(currentUser)) {
+			eventResource.add(linkTo(EventController.class).slash(event.getId()).withRel("update-event"));
+		}
 		return ResponseEntity.ok(eventResource);
 		
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity updateEvent(@PathVariable Integer id, @RequestBody @Valid EventDto eventDto , Errors errors) {
+	public ResponseEntity updateEvent(@PathVariable Integer id, @RequestBody @Valid EventDto eventDto , Errors errors,
+										@CurrentUser Account currentUser) {
 		
 		
 		Optional<Event> optionalEvent = eventRepository.findById(id);
-		System.out.println(optionalEvent.isPresent());
 		
 		if (!optionalEvent.isPresent()) {
 			return ResponseEntity.notFound().build();
@@ -109,6 +136,12 @@ public class EventController {
 			return badRequest(errors);
 		}
 		
+		Event event = optionalEvent.get();
+		
+		if (currentUser != null && !event.getOwner().equals(currentUser)) {
+			return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+		}
+		
 		eventValidator.validate(eventDto, errors);
 		
 		if(errors.hasErrors()) {
@@ -116,11 +149,12 @@ public class EventController {
 		}
 		
 		
-		modelMapper.map(eventDto, optionalEvent.get());
-		eventRepository.save(optionalEvent.get());
+		modelMapper.map(eventDto, event);
+		eventRepository.save(event);
 		
-		EventResource eventResource = new EventResource(optionalEvent.get());
+		EventResource eventResource = new EventResource(event);
 		eventResource.add(Link.of("/docs/index.html#resources-events-update").withRel("profile"));
+		
 		
 		return ResponseEntity.ok(eventResource);
 	}

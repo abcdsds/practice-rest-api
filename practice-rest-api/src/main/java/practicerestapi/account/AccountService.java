@@ -39,12 +39,6 @@ public class AccountService implements UserDetailsService{
 		// TODO Auto-generated method stub
 		Account account = accountRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException(username));
 		
-		return new User(account.getEmail(), account.getPassword(), authorities(account.getRoles()));
+		return new AccountAdapter(account);
 	}
-
-	private Collection<? extends GrantedAuthority> authorities(Set<AccountRole> roles) {
-		// TODO Auto-generated method stub
-		return roles.stream().map(v -> new SimpleGrantedAuthority("ROLE_" + v.name())).collect(Collectors.toSet());
-	}
-
 }

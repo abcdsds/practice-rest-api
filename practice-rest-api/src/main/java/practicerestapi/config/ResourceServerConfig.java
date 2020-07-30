@@ -23,7 +23,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter{
 	public void configure(HttpSecurity http) throws Exception {
 		// TODO Auto-generated method stub
 		http.anonymous()
-				.and()
+				.and() 
 			.authorizeRequests()
 				.mvcMatchers(HttpMethod.GET, "/api/**")
 					.permitAll()

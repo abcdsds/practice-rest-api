@@ -1,21 +1,12 @@
 package practicerestapi.account;
 
-import java.util.Set;
+import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-
+@Data
 public class AccountForm {
 
-	@Column(unique = true)
-	private String email;
+	private String username;
 	
 	private String password;
-	
-	@ElementCollection(fetch = FetchType.EAGER)
-	@Enumerated(EnumType.STRING)
-	private Set<AccountRole> roles;
+
 }

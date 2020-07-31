@@ -2,6 +2,8 @@ package practicerestapi.jwt;
 
 import java.util.Date;
 
+import javax.crypto.SecretKey;
+
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -13,6 +15,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.impl.crypto.MacProvider;
 import lombok.extern.slf4j.Slf4j;
 import practicerestapi.account.Account;
 import practicerestapi.account.AccountAdapter;
@@ -24,26 +27,26 @@ public class JwtProvider {
 
 	 public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
 	 
-	 @Value("${jwt.secret}")
-	 private String secret;
+	 //@Value("${jwt.secret}")
+	 private SecretKey secret = MacProvider.generateKey();
 	 
-	 public String generateJwtToken(Authentication authentication) {
-		 
-		 AccountAdapter accountAdapter = (AccountAdapter) authentication.getPrincipal();
-		 Account account = accountAdapter.getAccount();
-	     return Jwts.builder()
-	                .setSubject((account.getEmail()))
-	                .setIssuedAt(new Date(System.currentTimeMillis()))
-	                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY))
-	                .signWith(SignatureAlgorithm.HS512, secret)
-	                .compact();
-	 }
+//	 public String generateJwtToken(Authentication authentication) {
+//		 
+//		 AccountAdapter accountAdapter = (AccountAdapter) authentication.getDetails();
+//		 Account account = accountAdapter.getAccount();
+//	     return Jwts.builder()
+//	                .setSubject((account.getEmail()))
+//	                .setIssuedAt(new Date(System.currentTimeMillis()))
+//	                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY + JWT_TOKEN_VALIDITY))
+//	                .signWith(SignatureAlgorithm.HS512, secret)
+//	                .compact();
+//	 }
 	 
 	 public String getUserNameFromJwtToken(String token) {
 	        return Jwts.parser()
-	                      .setSigningKey(secret)
-	                      .parseClaimsJws(token)
-	                      .getBody().getSubject();
+	                     .setSigningKey("test1111".getBytes())
+	                     .parse(token)
+	                     .getBody().toString();
 	 }
 	 
 	 

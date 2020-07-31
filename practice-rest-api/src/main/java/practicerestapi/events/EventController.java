@@ -8,7 +8,6 @@ import java.util.Optional;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
-import org.elasticsearch.client.security.user.User;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -24,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,11 +38,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import lombok.extern.slf4j.Slf4j;
 import practicerestapi.account.Account;
 import practicerestapi.account.AccountAdapter;
 import practicerestapi.account.CurrentUser;
 import practicerestapi.index.ErrorsResource;
 
+@Slf4j
 @Controller
 @RequestMapping(value = "/api/events" , produces = MediaTypes.HAL_JSON_VALUE)
 @RequiredArgsConstructor
@@ -53,9 +55,18 @@ public class EventController {
 	private final EventValidator eventValidator;
 	
 	@PostMapping
-	public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors,
-											@CurrentUser Account account) {
+	public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors, @AuthenticationPrincipal Account account
+											) {
 		
+		System.out.println("============================");
+		System.out.println(account);
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		System.out.println(authentication.getPrincipal());
+		
+		log.info("=============================");
+		//log.info("{}" , accountAdapter);
+		log.info("=============================");
 		
 		//URI uri = linkTo(methodOn(EventController.class).createEvent(null)).slash("{id}").toUri();
 		if(errors.hasErrors()) {

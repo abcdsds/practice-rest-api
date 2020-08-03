@@ -55,7 +55,7 @@ public class EventController {
 	private final EventValidator eventValidator;
 	
 	@PostMapping
-	public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors, @AuthenticationPrincipal Account account
+	public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors, @CurrentUser Account account
 											) {
 		
 		System.out.println("============================");

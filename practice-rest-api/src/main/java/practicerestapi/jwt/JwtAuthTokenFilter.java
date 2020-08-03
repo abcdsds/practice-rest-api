@@ -51,7 +51,10 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter{
 				
 				AccountAdapter accountAdapter = (AccountAdapter)accountService.loadUserByUsername(username);
 				
-				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(accountAdapter.getAccount(), accountAdapter.getPassword(), accountAdapter.getAuthorities());
+				
+				//UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(accountAdapter.getAccount(), accountAdapter.getPassword(), accountAdapter.getAuthorities());
+				
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(accountAdapter, accountAdapter.getPassword(), accountAdapter.getAuthorities());
 				
 				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 	
